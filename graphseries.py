@@ -1,4 +1,4 @@
-import os, re, igraph
+import os, re, igraph, networkx
 
 def init ():
     allgame = {}
@@ -29,14 +29,41 @@ def add(gr, gb,i):
             gr.add_edge(v,u)
             
 
-class Giter:
+
+#--------- networkx version -----------
+
+# halfgraph : networkx MultiGraph An undirected graph class that can store multiedges.
+# series : time series of current stone's position
+# step : get position tuple use step number of this node in series
+
+# add a tuple as node in an undirected graph and edges 
+
+def add(halfgraph, series, step):
+    
+
+    tok  = series[step]
+    halfgraph.add_node(tok)
+    
+    for t in get_neighbor(tok):
+        if t in halfgraph.node:
+            halfgraph.add_edge(tok, t)
+
+def get_neighbor(tok):
+    xx, yy = tok
+    return [(xx+1,yy),(xx-1,yy),(xx,yy+1),(xx,yy-1)]    
+    
+
+
+class GSeries:
     
     allgame = init()
-    def __init__(self):
+    def __init__(self, gameid = 177777, GClass = networkx.MultiGraph):
         
-        self.game = Giter.allgame[177777]
+        self.game = Giter.allgame[gameid]
+        #
         self.gb = [(ord(i[2]) ,ord(i[3])) for i in self.game if i.startswith('B')]
-        self.G = igraph.Graph()
+        self.G = GClass()
+
         self.i = 0
         
     def __iter__(self):
@@ -49,17 +76,17 @@ class Giter:
             add (self.G, self.gb,self.i)
             self.i += 1
 
-#--------- networkx version -----------
-        
 
+        
 
 #---------------       analysis  graph's properties use pandas dataframe      ----------------------------
 
 
 
-G = Giter()
-Giter.next = next
+G = GSeries()
 
+
+# -----------------------igraph--------------------
 def edges_vetice():
   for g in G:
       if G.i % 10 == 0:
@@ -76,5 +103,6 @@ def charactor():
 
 def blink():
     pass
+#---------------------- networkx---------------------
 
 
