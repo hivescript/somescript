@@ -1,4 +1,5 @@
 import os, re, igraph, networkx
+import pandas as pd
 
 def init ():
     allgame = {}
@@ -56,12 +57,13 @@ def get_neighbor(tok):
 
 class GSeries:
     
-    allgame = init()
-    def __init__(self, gameid = 177777, GClass = networkx.MultiGraph):
+    def __init__(self, GClass = networkx.MultiGraph):
         
-        self.game = Giter.allgame[gameid]
+        # maybe this is in Ring
+        # game
         #
-        self.gb = [(ord(i[2]) ,ord(i[3])) for i in self.game if i.startswith('B')]
+        
+        self.seq
         self.G = GClass()
 
         self.i = 0
@@ -70,39 +72,73 @@ class GSeries:
         return self
         
     def next(self):
-        if self.i >= len(self.gb):
+        if self.i >= len(self.seq):
             raise StopIteration
         else:
-            add (self.G, self.gb,self.i)
+            add (self.G, self.seq,self.i)
             self.i += 1
 
-
+    def __getter__(self,name):
+        if name == 'game' and False:
+            return getattr(self.ring, name)
+        return getattr(self, name)
         
 
+
+class Ring:
+    # let sigma^4 == 1, then put a time series in 4 thread
+    # 
+
+    allgame = init()
+
+    def __init__(self, gameid):
+
+        self.game = Ring.allgame[gameid]
+
+        self.W, self.B = GSeries(), GSeries()
+        self.W.ring = self.B.ring = self
+        def fff(game,color):
+            return [(ord(i[2]) ,ord(i[3])) for i in game if i.startswith(color)]
+        self.W.seq = self.W.gw = fff(self.game,"W")
+        self.B.seq = self.B.gb = fff(self.game,"B")
+
+        self.dict = {0:self.B,1:self.W}
+        self.step = 0
+
+
+        # dataframe , each row relate to a  move and the context at the moment
+        # stepnum : int step number of a stone
+        # j1, j2, j3, j4 : when a stone linked or join with another block ,set j =1
+        #                  if another block's color is opposite set j=-1 ,
+        #                  j1, j2, j3 ,j4 refer to   four diffrent direction
+        #irrational : when a join produce a block shape strange( based on statistic of a set of games) its irrational ,a machine learnig target
+        #impossible : when a join make a block has only one branch ,set impossible -1
+        #             when after a join with impossible -2, its possible to get impossible -1 with a  single move
+        #
+
+        #alpha : count of independent block
+        #top, bottom  : inside alpha, top with most branch, bottom with least branch
+        #tokhead, tokend : see self.tokendf
+        self.df = pd.DataFrame(columns = ["stepnum", "j1", "j2", "j3", "j4","brach","irration", "impossible","alpha", "top", "bottom"])
+        #self.recentdf , stack (5) step in a row
+        #self.tokendf,  stack steps which match a 'regular expression'
+                                                                            
+                                                                            
+    def __iter__(this):
+        return this
+    def next(this):
+        if  this.step >= len(self.game):
+            raise StopIteration
+        else:
+            c = this.step % 2
+            this.dict[c].next()
+            this.step += 1
+
+                              
 #---------------       analysis  graph's properties use pandas dataframe      ----------------------------
 
 
-
-G = GSeries()
-
-
-# -----------------------igraph--------------------
-def edges_vetice():
-  for g in G:
-      if G.i % 10 == 0:
-            print '-------------------'
-            for v in G.G.vs:
-                print v
-            for e in G.G.es:
-                print e.tuple
-            
-def charactor():
-    for g in G:
-        #print G.G.omega()
-        print G.G.alpha()
-
-def blink():
-    pass
-#---------------------- networkx---------------------
-
+R = Ring(177777)
+for n in R:
+    print len(R.W.G.node)
 
